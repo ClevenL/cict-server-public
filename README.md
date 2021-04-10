@@ -1,7 +1,21 @@
-# CICT - Cyber Information Collection Tool
+# API Server for CICT - Cyber Information Collection Tool
 
-v0.1 log
+## Installation
 
-    * Added core functionality
-        - API
-        - Fetching articles feed (every 10 min)
+Install and start MongoDB service
+
+Install dependencies:
+```
+npm install
+```
+
+Start server
+```
+node server.js
+```
+
+with hot reloading:
+
+```
+npm run server
+```
