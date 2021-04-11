@@ -19,3 +19,8 @@ with hot reloading:
 ```
 npm run server
 ```
+
+## Powered by
+
+* Node & Express
+* Mongoose
