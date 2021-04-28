@@ -17,7 +17,11 @@ const SourceSchema = new Schema({
     active: {
         type: Boolean,
         default: true
-    }
+    },
+    created: {
+        type: Date,
+        default: Date.now,
+    },
 })
 
 const Source = model('source', SourceSchema)
