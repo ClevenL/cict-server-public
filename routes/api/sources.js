@@ -1,7 +1,8 @@
 const { Router } = require('express')
 const Source = require('../../models/Source')
 const fetcher = require('../../utils/fetcher')
-let Parser = require('rss-parser')
+const FeedParser = require('feedparser')
+const fetch = require('node-fetch')
 const router = Router()
 
 router.get('/', async (req, res) => {
@@ -29,24 +30,35 @@ router.get('/fetch', async (req, res) => {
 
 router.post('/', async (req, res) => {
     const yesterday = new Date(Date.now() - 8.64e+7).toISOString()
-    let parser = new Parser()
-    try {      
-        let feed = await parser.parseURL(req.body.rss_url)
-        if (!feed) throw Error('Something went wrong getting the feed')
-        const sourceData = {
-            title: feed.title,
-            rss_url: feed.feedUrl,
-            last_query: yesterday
-            }
-        const newSource = new Source(sourceData)
-        const source = await newSource.save()
-        if (!source) throw new Error('Something went wrong saving the Source')
-        await fetcher.fetchFeed()
-        res.status(200).json(source)
-    } catch (error) {
-        console.log(error)
-        res.status(500).json({ message: error.message })
+    const feedparser = new FeedParser()
+    try {
+        const res = await fetch(req.body.rss_url)
+        res.body.pipe(feedparser)
+
+    } catch(error) {
+        res.status(200).json({ message: error.message })
     }
+    feedparser.on('error', error => res.status(200).json({ message: error.message }))
+    feedparser.on('readable', async function () {
+        const stream = this
+        if (this.meta.title) {
+            const sourceData = {
+                title: this.meta.title,
+                rss_url: this.meta.xmlurl || this.meta.xmlUrl || req.body.rss_url,
+                last_query: yesterday
+            }
+            try {
+                const newSource = new Source(sourceData)
+                const source = await newSource.save()
+                if (!source) throw new Error('Something went wrong saving the Source')
+                await fetcher.fetchFeed()
+                res.status(200).json(source)
+            } catch(error) {
+                res.status(200).json({ message: error.message })
+            }
+        }
+        if (!this.meta.title) res.status(200).json({ message: "Sorry, an unidentified error" })
+    })
 })
 
 router.put('/:id', async (req, res) => {

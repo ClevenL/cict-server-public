@@ -4,7 +4,6 @@ const mongoose = require('mongoose')
 const { PORT, mongoUriHost, mongoUriDb } = require('./config')
 const cors = require('cors')
 const morgan = require('morgan')
-const bodyParser = require('body-parser')
 const articleRoutes = require('./routes/api/articles')
 const sourceRoutes = require('./routes/api/sources')
 const entryRoutes = require('./routes/api/entries')
@@ -19,7 +18,7 @@ const cleaner = require('./utils/cleanDB')
 
 app.use(cors())
 app.use(morgan('combined'))
-app.use(bodyParser.json())
+app.use(express.json())
 
 mongoose.connect(`mongodb://${mongoUriHost}/${mongoUriDb}`, { 
     useNewUrlParser: true, 
