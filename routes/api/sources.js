@@ -3,6 +3,7 @@ const Source = require('../../models/Source')
 const fetcher = require('../../utils/fetcher')
 const FeedParser = require('feedparser')
 const fetch = require('node-fetch')
+const { v4: uuidv4 } = require('uuid')
 const router = Router()
 
 router.get('/', async (req, res) => {
@@ -42,8 +43,12 @@ router.post('/', async (req, res) => {
     feedparser.on('readable', async function () {
         const stream = this
         if (this.meta.title) {
+            const websiteLink = this.meta.link || req.body.rss_url
+            const faviconUUID = String(uuidv4())
             const sourceData = {
                 title: this.meta.title,
+                link: websiteLink,
+                faviconUUID: faviconUUID,
                 rss_url: this.meta.xmlurl || this.meta.xmlUrl || req.body.rss_url,
                 last_query: yesterday
             }
@@ -51,6 +56,7 @@ router.post('/', async (req, res) => {
                 const newSource = new Source(sourceData)
                 const source = await newSource.save()
                 if (!source) throw new Error('Something went wrong saving the Source')
+                await fetcher.getFavicon(websiteLink, faviconUUID)
                 await fetcher.fetchFeed()
                 res.status(200).json(source)
             } catch(error) {

@@ -1,5 +1,8 @@
 const FeedParser = require('feedparser')
+const fs = require('fs')
+const path = require('path')
 const fetch = require('node-fetch')
+const axios = require('axios').default
 const Article = require('../models/Article')
 const Source = require('../models/Source')
 
@@ -15,11 +18,7 @@ async function saveItem(item, source) {
             url : item.link,
             categories : item.categories,
             date : item.pubDate,
-            sources: {
-                _id: source._id,
-                title: source.title,
-                color: source.color,
-            },
+            sources: source,
         }
         const newArticle = new Article(article)
         try {
@@ -32,6 +31,25 @@ async function saveItem(item, source) {
         } catch (error) {
             console.log(error)
         }
+    }
+}
+
+exports.getFavicon = async (link, uuid) => {
+    const googleFaviconAPI = "https://www.google.com/s2/favicons?domain="
+    const filePath = path.resolve(__dirname, '..' , 'favicons', `${uuid}.png`);
+    try {
+        const response = await axios({
+          method: 'GET',
+          url: googleFaviconAPI + link,
+          responseType: 'stream',
+        });
+    
+        const w = response.data.pipe(fs.createWriteStream(filePath));
+        w.on('finish', () => {
+          console.log('Successfully downloaded file!');
+        });
+    } catch (err) {
+        throw new Error(err);
     }
 }
 

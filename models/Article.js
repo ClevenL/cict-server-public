@@ -30,13 +30,7 @@ const ArticleSchema = new Schema({
         content: String,
         entries: [String]
     },
-    sources: {
-        type: {
-            _id: String,
-            title: String,
-            color: String
-        }
-    }
+    sources: Schema.Types.Mixed,
 })
 
 const Article = model('article', ArticleSchema)

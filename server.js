@@ -3,6 +3,7 @@ const app = express()
 const mongoose = require('mongoose')
 const { PORT, mongoUriHost, mongoUriDb } = require('./config')
 const cors = require('cors')
+const path = require('path')
 const morgan = require('morgan')
 const articleRoutes = require('./routes/api/articles')
 const sourceRoutes = require('./routes/api/sources')
@@ -17,7 +18,7 @@ const fetcher = require('./utils/fetcher')
 const cleaner = require('./utils/cleanDB')
 
 app.use(cors())
-app.use(morgan('combined'))
+app.use(morgan('tiny'))
 app.use(express.json())
 
 mongoose.connect(`mongodb://${mongoUriHost}/${mongoUriDb}`, { 
@@ -39,6 +40,7 @@ app.use('/api/collections', collectionRoutes)
 app.use('/api/generatedraports', generatedRaportRoutes)
 app.use('/api/settings', settingsRoutes)
 app.use('/api/parser', parserRoutes)
+app.use('/api/favicons', express.static('favicons'))
 
 setInterval(() => {
     fetcher.fetchFeed()

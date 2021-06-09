@@ -5,6 +5,8 @@ const SourceSchema = new Schema({
         type: String,
         required: true,
     },
+    link: String,
+    faviconUUID: String,
     rss_url: {
         type: String,
         required: true,
