@@ -5,7 +5,8 @@ WORKDIR /opt
 COPY . /opt/
 
 RUN useradd cict && \
-    npm install --silent
+    npm install --silent && \
+    chown -R cict:cict /opt/favicons
 
 EXPOSE 3000
 
