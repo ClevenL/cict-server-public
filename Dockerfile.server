@@ -1,0 +1,14 @@
+FROM node:16.1.0-buster-slim
+
+WORKDIR /opt
+
+COPY . /opt/
+
+RUN useradd cict && \
+    npm install --silent
+
+EXPOSE 3000
+
+USER cict
+
+CMD ["node", "server.js"]
